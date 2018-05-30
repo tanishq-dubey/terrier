@@ -9,6 +9,7 @@ bencode_item_t* parse_bencode_file(char* filename) {
         printf("Error opening the file");
         return NULL;
     }
+	fclose(fp);
 }
 
 bencode_item_t* create_bencode_item(FILE* fp) {
@@ -55,7 +56,7 @@ bencode_item_t* create_bencode_item(FILE* fp) {
         default:
             // We encountered a byte string (probably), check for ASCII value
             if (x > 47 && x < 58) {
-                // Init byte string
+				// Get byte string length
                 int i = 0;
                 while (x != ':') {
                     val[i] = x;
@@ -63,7 +64,20 @@ bencode_item_t* create_bencode_item(FILE* fp) {
                     x = fgetc(fp);
                 }
                 val[i] = '\0';
+				int len = atoi(val);
 
+				// Get the actual byte string
+				if (fgets(val, len, fp) == NULL) {
+					printf("Invalid byte string parse in bencode");
+					return NULL;
+				}
+				bencode_item_t* retval = (bencode_item_t*)malloc(sizeof(bencode_item_t));
+				bencode_string_t* strval = (bencode_integer_t*)malloc(sizeof(bencode_integer_t));
+				retval->type = BYTE_STRING;
+				retval->item = strval;
+				strval->value = val;
+				strval->length = len;
+				return retval;
             } else {
                 // If it isn't a number, then it's bad
                 printf("Invalid bencode format");
