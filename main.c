@@ -10,6 +10,8 @@
 #else
 #include <unistd.h>
 #endif
+
+#include "bencode.h"
  
 int getNumberOfCores() {
 #ifdef WIN32
@@ -37,5 +39,8 @@ int getNumberOfCores() {
 
 int main () {
     printf("Detected %d cores.\n", getNumberOfCores());
+    bencode_t* bencode = parse_bencode_file("folder.torrent");
+    print_bencode(bencode);
+    free_bencode(bencode);
     return 0;
 }
