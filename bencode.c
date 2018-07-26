@@ -101,16 +101,17 @@ void print_bencode_item(bencode_item_t* item, int print_depth) {
     }
     switch(item->type) {
         case BYTE_STRING:
-            printf("Byte String of length %d: %s\n", ((bencode_string_t*)item)->length,((bencode_string_t*)item)->string);
+            printf("Byte String of length %d: %s\n", ((bencode_string_t*)item->item)->length,((bencode_string_t*)item->item)->string);
             break;
         case INTEGER:
-            printf("Integer: %ld\n", ((bencode_integer_t*)item)->value);
+            printf("Integer: %ld\n", ((bencode_integer_t*)item->item)->value);
             break;
         case LIST:
-            printf("List of length: %d:\n", ((bencode_list_t*)item)->length);
+            printf("List of length: %d:\n", ((bencode_list_t*)item->item)->length);
             for(i = 0; i < ((bencode_list_t*)item->item)->length; i++) {
                 print_bencode_item(((bencode_list_t*)item->item)->elements[i], print_depth+1);
             }
+            break;
         case DICTIONARY:
             printf("Dictionary of length %d:\n", ((bencode_dict_t*)item->item)->length);
             for(i = 0; i < ((bencode_dict_t*)item->item)->length; i++) {
@@ -175,7 +176,7 @@ bencode_string_t* parse_string(FILE* fp) {
     // Get the actual byte string
     bencode_string_t* strval = (bencode_string_t*)malloc(sizeof(bencode_integer_t));
     strval->string = (char*) malloc((len+2)*sizeof(char));
-    if (fgets(strval->string, len+1, fp) == NULL) {
+    if (fread(strval->string, 1, len, fp) != len) {
         free(strval->string);
         free(strval);
         printf("Invalid byte string parse in bencode\n");
@@ -213,7 +214,6 @@ bencode_integer_t* parse_integer(FILE* fp) {
     val[i] = '\0';
     bencode_integer_t* intval = (bencode_integer_t*)malloc(sizeof(bencode_integer_t));
     intval->value = strtol(val, NULL, 10);
-    printf("Int of value %ld \n", intval->value);
     return intval;
 }
 

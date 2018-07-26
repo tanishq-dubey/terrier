@@ -39,8 +39,10 @@ int getNumberOfCores() {
 
 int main () {
     printf("Detected %d cores.\n", getNumberOfCores());
-    bencode_t* bencode = parse_bencode_file("folder.torrent");
-    print_bencode(bencode);
-    free_bencode(bencode);
+    bencode_t* bencode = parse_bencode_file("puppy.torrent");
+    if (bencode != NULL) {
+        print_bencode(bencode);
+        free_bencode(bencode);
+    }
     return 0;
 }
